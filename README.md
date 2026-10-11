@@ -24,9 +24,9 @@ apps/
 docs/        Architecture material and original milestone documentation
 ```
 
-## Team and provenance
+## Team project
 
-University team project by **Aziz Zarrouki, Rayan Brigui and Jihed Khattat**. This repository is a curated snapshot of the final available milestone and presents the implementation as shared team work. The classroom repository's bot-generated history is not used to infer individual authorship, and no course grade is claimed.
+Built as a university team project by **Aziz Zarrouki, Rayan Brigui and Jihed Khattat**. The repository contains the final available milestone and presents the implementation as shared work rather than assigning features from the classroom repository's bot-generated history.
 
 ## Local setup
 

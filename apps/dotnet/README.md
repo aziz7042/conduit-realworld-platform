@@ -32,6 +32,6 @@ Local certificates, database files and user-secret values are excluded from Git.
 
 `tst/Assignment.Tests` belongs to the original course harness. Some checks require the classroom API/database environment and are therefore not part of the portable commands above.
 
-## Upstream provenance
+## Credits
 
 The API implements the [RealWorld specification](https://github.com/gothinkster/realworld) and adapts ideas from Erik van der Valk's [Clean Architecture RealWorld implementation](https://github.com/Erikvdv/realworlddotnet). This university team project converted the architecture to Minimal APIs and integrated it with the repository's web and mobile clients. Upstream notices and licenses remain in force.

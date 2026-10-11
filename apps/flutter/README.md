@@ -19,7 +19,7 @@ flutter pub get
 flutter run
 ```
 
-No prebuilt APK is stored in this curated repository. Configure the API base URL for the emulator or device being used.
+No prebuilt APK is included. Configure the API base URL for the emulator or device being used.
 
 ## Project context
 

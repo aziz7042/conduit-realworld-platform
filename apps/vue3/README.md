@@ -23,6 +23,6 @@ npm run test:e2e
 
 The web client expects the repository's Conduit API to be available locally.
 
-## Upstream provenance
+## Credits
 
-This client derives from Niyaco's MIT-licensed [`vue3-realworld-app`](https://github.com/niyaco/vue3-realworld-app), which implements the [RealWorld frontend specification](https://github.com/gothinkster/realworld). Niyaco is the upstream maintainer, not the maintainer of this portfolio repository. The university team adapted and integrated the client with its backend and project workflow. The upstream MIT license remains in force.
+This client derives from Niyaco's MIT-licensed [`vue3-realworld-app`](https://github.com/niyaco/vue3-realworld-app), which implements the [RealWorld frontend specification](https://github.com/gothinkster/realworld). Niyaco maintains the upstream project; the university team adapted the client and connected it to this project's backend and workflow. The upstream MIT license remains in force.

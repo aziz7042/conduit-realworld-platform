@@ -1,0 +1,33 @@
+docs/out
+docs/node_modules
+*/.idea
+*.iml
+
+# Build and dependency output
+**/bin/
+**/obj/
+**/node_modules/
+**/.dart_tool/
+**/build/
+**/coverage/
+.vs/
+
+# Local configuration and credentials
+**/.env
+**/.env.*
+!**/.env.example
+*.pfx
+*.p12
+*.pem
+*.key
+
+# Local/generated data and distributables
+*.db
+*.sqlite
+*.sqlite3
+apps/flutter/presentation/*.apk
+docs/*.jar
+
+# OS/editor files
+.DS_Store
+Thumbs.db

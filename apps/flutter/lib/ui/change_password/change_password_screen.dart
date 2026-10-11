@@ -1,0 +1,416 @@
+import 'package:conduit/bloc/profile_bloc/profile_bloc.dart';
+import 'package:conduit/bloc/profile_bloc/profile_event.dart';
+import 'package:conduit/bloc/profile_bloc/profile_state.dart';
+import 'package:conduit/config/constant.dart';
+import 'package:conduit/main.dart';
+import 'package:conduit/model/profile_model.dart';
+import 'package:conduit/utils/AppColors.dart';
+import 'package:conduit/utils/functions.dart';
+import 'package:conduit/utils/message.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+class ChangePasswordScreen extends StatefulWidget {
+  static const changePasswordUrl = '/changePassword';
+  const ChangePasswordScreen({Key? key}) : super(key: key);
+
+  @override
+  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
+}
+
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
+  TextEditingController oldPasswordCtr = TextEditingController();
+  TextEditingController passwordCtr = TextEditingController();
+  TextEditingController confirmPasswordCtr = TextEditingController();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
+  bool isNoInternet = false;
+  bool _obsecureTextOldPW = true;
+  bool _obsecureText = true;
+  bool _obsecureText2 = true;
+  late ProfileBloc profileBloc;
+  @override
+  void initState() {
+    profileBloc = context.read<ProfileBloc>();
+    super.initState();
+  }
+
+  _toggleObscuredOldPW() {
+    setState(() {
+      _obsecureTextOldPW = !_obsecureTextOldPW;
+    });
+  }
+
+  _toggleObscured() {
+    setState(() {
+      _obsecureText = !_obsecureText;
+    });
+  }
+
+  _toggleObscured2() {
+    setState(() {
+      _obsecureText2 = !_obsecureText2;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async => true,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: AppColors.primaryColor,
+          automaticallyImplyLeading: false,
+          centerTitle: false,
+          leading: IconButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            icon: Icon(Icons.arrow_back),
+          ),
+          title: Text(
+            "Change Password",
+            style: TextStyle(
+              color: AppColors.white,
+              fontFamily: ConduitFontFamily.robotoRegular,
+            ),
+          ),
+        ),
+        body: ScrollConfiguration(
+          behavior: NoGlow(),
+          child: SingleChildScrollView(
+            child: GestureDetector(
+              onTap: () {
+                FocusScopeNode currentFocus = FocusScope.of(context);
+                if (!currentFocus.hasPrimaryFocus) {
+                  currentFocus.unfocus();
+                }
+              },
+              child: BlocConsumer<ProfileBloc, ProfileState>(
+                listener: (context, state) {
+                  if (state is ChangePasswordLoadingState) {
+                    //return CToast.instance.showLoader();
+                    CToast.instance.showLodingLoader(context);
+                  }
+                  if (state is ProfileNoInternetState) {
+                    CToast.instance.dismiss();
+                    CToast.instance.showError(context, NO_INTERNET);
+                  }
+                  if (state is ChangePasswordSuccessState) {
+                    passwordCtr.clear();
+                    confirmPasswordCtr.clear();
+                    oldPasswordCtr.clear();
+                    CToast.instance.dismiss();
+                    print("password updated");
+                    CToast.instance
+                        .showSuccess(context, "Password updated successfully.");
+                    Navigator.pop(context);
+                    //ConduitFunctions.logOut(context);
+                  }
+                  if (state is ChangePasswordErrorState) {
+                    CToast.instance.dismiss();
+                    CToast.instance
+                        .showError(context, "Error while updating password: ${state.message}");
+                    // CToast.instance.showError(context, state.msg);
+                  }
+                },
+                builder: (context, state) {
+                  return Form(
+                    key: _formKey,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          height: 50,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(right: 20, left: 20),
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                autofocus: false,
+                                obscureText: _obsecureTextOldPW,
+                                cursorColor: AppColors.primaryColor,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.deny(' '),
+                                  LengthLimitingTextInputFormatter(16)
+                                ],
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: AppColors.white2,
+                                  contentPadding: const EdgeInsets.all(10),
+                                  prefixIcon: Icon(
+                                    CupertinoIcons.lock_rotation_open,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  suffixIcon: InkWell(
+                                    onTap: _toggleObscuredOldPW,
+                                    child: Transform.scale(
+                                      scale: 0.9,
+                                      child: Icon(
+                                        _obsecureTextOldPW
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  disabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  hintText: "Enter Your Old Password",
+                                  // prefixText: 'GJ011685',
+                                ),
+                                controller: oldPasswordCtr,
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(right: 20, left: 20),
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                autofocus: false,
+                                obscureText: _obsecureText,
+                                cursorColor: AppColors.primaryColor,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.deny(' '),
+                                  LengthLimitingTextInputFormatter(16)
+                                ],
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                validator: (value) {
+                                  if (value!.length <= 6) {
+                                    return "Password must be minimum 6 characters";
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: AppColors.white2,
+                                  contentPadding: const EdgeInsets.all(10),
+                                  prefixIcon: Icon(
+                                    CupertinoIcons.lock_rotation_open,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  suffixIcon: InkWell(
+                                    onTap: _toggleObscured,
+                                    child: Transform.scale(
+                                      scale: 0.9,
+                                      child: Icon(
+                                        _obsecureText
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10)),
+                                  disabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  errorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  focusedErrorBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(
+                                        width: 3, color: AppColors.white2),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  hintText: "Enter Your New Password",
+                                  // prefixText: 'GJ011685',
+                                ),
+                                controller: passwordCtr,
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(right: 20, left: 20),
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                autofocus: false,
+                                obscureText: _obsecureText2,
+                                cursorColor: AppColors.primaryColor,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.deny(' '),
+                                  LengthLimitingTextInputFormatter(16)
+                                ],
+                                style: TextStyle(
+                                  color: Colors.black,
+                                ),
+                                validator: (value) {
+                                  if (value?.trimLeft().trimRight().isEmpty ??
+                                      true) {
+                                    return "Please enter your confirm password";
+                                  } else if (value != passwordCtr.text) {
+                                    return "Confirm password should match with new password";
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: AppColors.white2,
+                                    contentPadding: const EdgeInsets.all(10),
+                                    prefixIcon: Icon(
+                                      CupertinoIcons.lock_rotation_open,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                    suffixIcon: InkWell(
+                                      onTap: _toggleObscured2,
+                                      child: Transform.scale(
+                                        scale: 0.9,
+                                        child: Icon(
+                                          _obsecureText2
+                                              ? Icons.visibility_off
+                                              : Icons.visibility,
+                                          color: AppColors.primaryColor,
+                                        ),
+                                      ),
+                                    ),
+                                    border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 3, color: AppColors.white2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 3, color: AppColors.white2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 3, color: AppColors.white2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    errorBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 3, color: AppColors.white2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    focusedErrorBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          width: 3, color: AppColors.white2),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    hintText: "Enter Confirm Password"),
+                                controller: confirmPasswordCtr,
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding:
+                              EdgeInsets.only(top: 25, left: 20, right: 20),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: 45,
+                            child: MaterialButton(
+                              color: AppColors.primaryColor,
+                              textColor: AppColors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              onPressed: () {
+                                FocusManager.instance.primaryFocus!.unfocus();
+                                if (_formKey.currentState?.validate() ??
+                                    false) {
+                                  profileBloc.add(
+                                    ChangePasswordEvent(
+                                      profileModel: ProfileModel(
+                                        user: User(
+                                          newPassword: passwordCtr.text.toString(),
+                                          oldPassword: oldPasswordCtr.text.toString(),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text(
+                                'Update',
+                                style: TextStyle(
+                                  color: AppColors.white,
+                                  fontFamily: ConduitFontFamily.robotoRegular,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 20,
+                        )
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // void logOutUser() async {
+  //   await hiveStore.logOut();
+  //   // await hiveStore.init();
+  // }
+}
